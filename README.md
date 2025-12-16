@@ -14,8 +14,14 @@
   - [9. Check Container Status](#9-check-container-status)
   - [10. Configure Firewall](#10-configure-firewall-if-ufw-is-enabled)
 - [Access Your Applications](#access-your-applications)
+  - [n8n Workflow Automation - First Time Setup](#n8n-workflow-automation---first-time-setup)
+  - [Portainer (Docker Management)](#portainer-docker-management)
 - [Maintenance Commands](#maintenance-commands)
 - [Troubleshooting](#troubleshooting)
+  - [Error 401 Unauthorized or Can't Login](#error-401-unauthorized-or-cant-login)
+  - [Container won't start](#container-wont-start)
+  - [Permission issues](#permission-issues)
+  - [Browser Console Warnings (COOP/HTTPS)](#browser-console-warnings-coophttps)
 - [Security Recommendations](#security-recommendations)
 - [Backup & Restore](#backup--restore)
 - [Support](#support)
@@ -79,19 +85,19 @@ Paste the following configuration and **modify the highlighted values**:
 
 ```env
 # n8n Configuration
-N8N_BASIC_AUTH_ACTIVE=true
-N8N_BASIC_AUTH_USER=Admin
-N8N_BASIC_AUTH_PASSWORD=StrongPassword     # CHANGE THIS to a strong password
-N8N_HOST=192.168.1.100                      # CHANGE THIS to your server IP
+N8N_HOST=192.168.1.100    # ⚠️ CHANGE THIS to your server IP
 N8N_PORT=5678
 N8N_PROTOCOL=http
-N8N_SECURE_COOKIE=false
 NODE_ENV=production
+
+# Timezone (optional)
+GENERIC_TIMEZONE=Asia/Jakarta
+TZ=Asia/Jakarta
 ```
 
-**Important:** Replace the following values:
-- `N8N_BASIC_AUTH_PASSWORD`: Set a strong password for n8n login
-- `N8N_HOST`: Set to your server's IP address (from step 2)
+**Important:** Replace `N8N_HOST` with your server's IP address (from step 2).
+
+**Note:** Starting from n8n v1.0+, Basic Authentication is deprecated. User authentication is now managed through the web interface during first-time setup.
 
 Save and exit (Ctrl+X, then Y, then Enter).
 
@@ -190,14 +196,28 @@ sudo ufw reload
 
 After successful installation, you can access:
 
-### n8n Workflow Automation
-- **URL:** `http://YOUR-SERVER-IP:5678`
-- **Username:** Admin (or as configured in .env)
-- **Password:** As set in `N8N_BASIC_AUTH_PASSWORD`
+### n8n Workflow Automation - First Time Setup
+
+1. **Open your browser** and navigate to: `http://YOUR-SERVER-IP:5678`
+
+2. **Create Owner Account** - On first access, you will be prompted to create an owner account:
+   - **Email:** Enter a valid email address
+   - **First Name:** Your first name
+   - **Last Name:** Your last name
+   - **Password:** Set a strong password (minimum 8 characters)
+
+3. **Complete Setup** - Follow the on-screen prompts to finish the initial setup
+
+4. **Login** - Use the email and password you created to log in
+
+**Important Notes:**
+- The owner account is created **only once** during first access
+- Basic Auth credentials from .env are **not used** in n8n v1.0+
+- If you see a 401 error, the owner may already exist - try logging in or reset (see Troubleshooting)
 
 ### Portainer (Docker Management)
 - **URL:** `http://YOUR-SERVER-IP:9000`
-- **First time:** Create admin user on first access
+- **First time:** Create admin user on first access (username + password)
 
 ## Maintenance Commands
 
@@ -256,6 +276,24 @@ sudo docker compose up -d
 
 ## Troubleshooting
 
+### Error 401 Unauthorized or Can't Login
+
+If you see a 401 error or cannot log in, the owner account may have already been created.
+
+**Solution 1: Check existing owner**
+```bash
+sudo docker exec n8n-server sqlite3 /home/node/.n8n/database.sqlite "SELECT email, firstName, lastName FROM user;"
+```
+If an email is shown, try logging in with that email.
+
+**Solution 2: Reset and create new owner (⚠️ This will delete all workflows and data)**
+```bash
+sudo docker compose down
+sudo rm -rf n8n-data/database.sqlite*
+sudo docker compose up -d
+```
+Then access `http://YOUR-SERVER-IP:5678` to create a new owner account.
+
 ### Container won't start
 ```bash
 sudo docker compose logs n8n
@@ -277,6 +315,14 @@ df -h
 ```bash
 sudo docker system prune -a
 ```
+
+### Browser Console Warnings (COOP/HTTPS)
+
+If you see Cross-Origin-Opener-Policy warnings in browser console:
+- This is **just a warning**, not an error
+- It appears because you're using HTTP instead of HTTPS
+- Application will work normally
+- For production, consider setting up HTTPS with reverse proxy (nginx/Traefik)
 
 ## Security Recommendations
 
@@ -308,4 +354,3 @@ sudo docker compose up -d
 For issues or questions:
 - n8n Documentation: https://docs.n8n.io
 - Portainer Documentation: https://docs.portainer.io
-- GitHub Issues: https://github.com/krisnadwiki/n8n-server-install/issues
