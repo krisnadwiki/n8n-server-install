@@ -156,28 +156,44 @@ docker compose up -d
 
 ### Backup
 
-Backup your n8n data:
+Backup your n8n data using the management script (recommended):
+```bash
+./n8n-manager.sh backup
+```
+
+Or manually:
 ```bash
 # Create backup directory
 mkdir -p backups
 
+# Get the volume name
+VOLUME_NAME=$(docker compose config --volumes | grep n8n_data)
+
 # Backup volume data
 docker run --rm \
-  -v n8n-server-install_n8n_data:/data \
+  -v ${VOLUME_NAME}:/data \
   -v $(pwd)/backups:/backup \
   alpine tar czf /backup/n8n-backup-$(date +%Y%m%d-%H%M%S).tar.gz -C /data .
 ```
 
 ### Restore
 
-Restore from backup:
+Restore from backup using the management script (recommended):
+```bash
+./n8n-manager.sh restore
+```
+
+Or manually:
 ```bash
 # Stop n8n
 docker compose down
 
+# Get the volume name
+VOLUME_NAME=$(docker compose config --volumes | grep n8n_data)
+
 # Restore data
 docker run --rm \
-  -v n8n-server-install_n8n_data:/data \
+  -v ${VOLUME_NAME}:/data \
   -v $(pwd)/backups:/backup \
   alpine sh -c "rm -rf /data/* && tar xzf /backup/your-backup-file.tar.gz -C /data"
 

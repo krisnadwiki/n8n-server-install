@@ -128,9 +128,16 @@ backup_n8n() {
     mkdir -p "$BACKUP_DIR"
     BACKUP_FILE="$BACKUP_DIR/n8n-backup-$(date +%Y%m%d-%H%M%S).tar.gz"
     
-    print_info "Creating backup..."
+    # Get the actual volume name from docker compose
+    VOLUME_NAME=$(docker compose config --volumes 2>/dev/null | grep n8n_data || echo "")
+    if [ -z "$VOLUME_NAME" ]; then
+        print_error "Could not determine volume name. Make sure docker-compose.yml exists."
+        exit 1
+    fi
+    
+    print_info "Creating backup of volume: $VOLUME_NAME"
     docker run --rm \
-        -v "$(basename $SCRIPT_DIR)_n8n_data:/data" \
+        -v "${VOLUME_NAME}:/data" \
         -v "$SCRIPT_DIR/$BACKUP_DIR:/backup" \
         alpine tar czf "/backup/$(basename $BACKUP_FILE)" -C /data .
     
@@ -168,9 +175,16 @@ restore_n8n() {
     print_info "Stopping n8n..."
     docker compose down
     
-    print_info "Restoring from backup..."
+    # Get the actual volume name from docker compose
+    VOLUME_NAME=$(docker compose config --volumes 2>/dev/null | grep n8n_data || echo "")
+    if [ -z "$VOLUME_NAME" ]; then
+        print_error "Could not determine volume name. Make sure docker-compose.yml exists."
+        exit 1
+    fi
+    
+    print_info "Restoring to volume: $VOLUME_NAME"
     docker run --rm \
-        -v "$(basename $SCRIPT_DIR)_n8n_data:/data" \
+        -v "${VOLUME_NAME}:/data" \
         -v "$SCRIPT_DIR/$BACKUP_DIR:/backup" \
         alpine sh -c "rm -rf /data/* && tar xzf /backup/$BACKUP_FILE -C /data"
     

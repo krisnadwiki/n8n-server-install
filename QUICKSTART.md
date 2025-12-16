@@ -1,19 +1,24 @@
 # Quick Start Guide
 
-## One-Line Installation
+## Installation
 
-For a quick installation on Ubuntu Server:
-
-```bash
-curl -fsSL https://raw.githubusercontent.com/krisnadwiki/n8n-server-install/main/install.sh | sudo bash
-```
-
-Or download and run:
+For a quick installation on Ubuntu Server, download and run the installation script:
 
 ```bash
+# Download the script
 wget https://raw.githubusercontent.com/krisnadwiki/n8n-server-install/main/install.sh
+
+# Review the script (recommended)
+cat install.sh
+
+# Make it executable and run
 chmod +x install.sh
 sudo ./install.sh
+```
+
+**Alternative one-line installation** (only if you trust the source):
+```bash
+curl -fsSL https://raw.githubusercontent.com/krisnadwiki/n8n-server-install/main/install.sh | sudo bash
 ```
 
 ## After Installation
