@@ -89,27 +89,64 @@ The `docker-compose.yml` file includes:
 
 ## 🔧 Management Commands
 
-### Start n8n
+### Using the Management Script (Recommended)
+
+For easier management, use the included `n8n-manager.sh` script:
+
+```bash
+# Start n8n
+./n8n-manager.sh start
+
+# Stop n8n
+./n8n-manager.sh stop
+
+# Restart n8n
+./n8n-manager.sh restart
+
+# View logs
+./n8n-manager.sh logs
+
+# Check status
+./n8n-manager.sh status
+
+# Update to latest version
+./n8n-manager.sh update
+
+# Create backup
+./n8n-manager.sh backup
+
+# Restore from backup
+./n8n-manager.sh restore
+
+# Show help
+./n8n-manager.sh help
+```
+
+### Using Docker Compose Directly
+
+Alternatively, use Docker Compose commands directly:
+
+#### Start n8n
 ```bash
 docker compose up -d
 ```
 
-### Stop n8n
+#### Stop n8n
 ```bash
 docker compose down
 ```
 
-### View logs
+#### View logs
 ```bash
 docker compose logs -f n8n
 ```
 
-### Restart n8n
+#### Restart n8n
 ```bash
 docker compose restart
 ```
 
-### Update n8n
+#### Update n8n
 ```bash
 docker compose pull
 docker compose up -d
