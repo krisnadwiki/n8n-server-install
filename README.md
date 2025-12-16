@@ -275,7 +275,11 @@ For production environments, it's recommended to use a reverse proxy with SSL:
 
 ## 🐛 Troubleshooting
 
-### Container won't start
+For common issues and solutions, see the [TROUBLESHOOTING.md](TROUBLESHOOTING.md) guide.
+
+### Quick Fixes
+
+#### Container won't start
 ```bash
 # Check logs
 docker compose logs n8n
@@ -284,13 +288,13 @@ docker compose logs n8n
 sudo netstat -tlnp | grep 5678
 ```
 
-### Permission issues
+#### Permission issues
 ```bash
 # Fix permissions for local files
 sudo chown -R 1000:1000 n8n-local-files
 ```
 
-### Reset n8n
+#### Reset n8n
 ```bash
 # Warning: This will delete all workflows and credentials
 docker compose down -v
